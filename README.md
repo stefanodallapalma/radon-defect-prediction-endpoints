@@ -4,18 +4,18 @@ This repository provised the APIs to expose Ansible and Tosca pre-trained defect
 
 ## Endpoints
 
-- Get model: https://radon-defect-prediction-endpoints.herokuapp.com/models
-- Predict: https://radon-defect-prediction-endpoints.herokuapp.com/predictions
+- Get model: https://radon-defect-prediction.herokuapp.com/models
+- Predict: https://radon-defect-prediction.herokuapp.com/predictions
 
 
 
 ### Get model
 Get a pre-trained model from the most similar project.
 
-`GET https://radon-defect-prediction-endpoints.herokuapp.com/models?parm1=value1&...&paramN=valueN`
+`GET https://radon-defect-prediction.herokuapp.com/models?parm1=value1&...&paramN=valueN`
 
 **Example:**
-`GET https://radon-defect-prediction-endpoints.herokuapp.com/models?language=ansible&repository_size=560&comments_ratio=0.03&has_license=1`
+`GET https://radon-defect-prediction.herokuapp.com/models?language=ansible&repository_size=560&comments_ratio=0.03&has_license=1`
 
 **Parameters**
 
@@ -76,10 +76,10 @@ tree_classifier = model['estimator'].named_steps['classification']
 ### Predict
 Predict the failure-proneness of a file represented by a set of metrics.
 
-`GET https://radon-defect-prediction-endpoints.herokuapp.com/predictions?parm1=value1&...&paramN=valueN`
+`GET https://radon-defect-prediction.herokuapp.com/predictions?parm1=value1&...&paramN=valueN`
 
 **Example:** 
-`GET https://radon-defect-prediction-endpoints.herokuapp.com/predictions?language=ansible&model_id=24242603&num_names_with_vars=10&num_ignore_errors=3&num_conditions=1`
+`GET https://radon-defect-prediction.herokuapp.com/predictions?language=ansible&model_id=24242603&num_names_with_vars=10&num_ignore_errors=3&num_conditions=1`
 
 **Parameters**
 
