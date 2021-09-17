@@ -10,6 +10,9 @@ from pathlib import Path
 from scipy.spatial import distance
 from sklearn.tree import export_text
 
+from ansiblemetrics.metrics_extractor import extract_all as extract_ansible_metrics 
+from toscametrics.metrics_extractor import extract_all as extract_tosca_metrics 
+
 app = Flask(__name__)
 
 with open(os.path.join('models', 'ansible', 'metadata.json')) as f:
@@ -102,41 +105,37 @@ def models():
     return send_file(path_to_model, as_attachment=True) if return_model else response
 
 
-@app.route('/predictions/', methods=['GET'])
+@app.route('/predictions/', methods=['POST'])
 def predict():
-    response = {}
 
-    language = None
-    model_id = 0
-    metrics = {}
+    language = str(request.args.get('language')).lower()
+    model_id = int(request.args.get('model_id'))
+    script = request.data.decode('UTF-8')
 
-    for k, v in dict(request.args).items():
-        if k == 'language':
-            language = str(v).lower()
-        elif k == 'model_id':
-            model_id = int(v)
-        else:
-            metrics[k] = float(v)
-
-    unseen_data = pd.DataFrame(metrics, index=[0])
+    print(script)
 
     if language == 'ansible':
         models_metadata = ansible_models_metadata
+        metrics = extract_ansible_metrics(script)
     elif language == 'tosca':
         models_metadata = tosca_models_metadata
+        metrics = extract_tosca_metrics(script)
     else:
-        response["ERROR"] = 'Language not supported'
-        return response
+        return {"ERROR": 'Language not supported'}
+
+    unseen_data = pd.DataFrame(metrics, index=[0])
 
     i = 0
     while i < len(models_metadata) and models_metadata[i]['id'] != model_id:
         i += 1
 
     if  i == len(models_metadata):
-        response["ERROR"] = "Model not found."
-        return response
+        return {"ERROR": 'Model not found'}
 
-    response['failure_prone'] = False
+    response = {
+        'failure_prone': False,
+        'metrics': metrics
+    }
 
     for defect_type in ('conditional', 'configuration_data', 'service', 'general'):
         path_to_model = models_metadata[i]['models'].get(defect_type)
